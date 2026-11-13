@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>ترانزيت_تقرير خدمة الطائرات</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    :root{
+      --bg0:#041c1a;
+      --bg1:#062a26;
+      --line: rgba(255,255,255,.10);
+      --gold:#b9a779;
+      --gold2:#988561;
+      --txt:#e9e6dc;
+      --muted:#8fb3ad;
+    }
+
+    html, body {
+      width: 100%;
+      max-width: 100vw;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    body{
+      font-family:'Tajawal',system-ui,-apple-system,Segoe UI,Arial;
+      background:
+        radial-gradient(1200px 600px at 20% 10%, rgba(185,167,121,.12), transparent 55%),
+        radial-gradient(900px 500px at 80% 20%, rgba(66,129,119,.14), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      color: var(--txt);
+      min-height:100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container-fluid {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .glass{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border: 1px solid var(--line);
+      backdrop-filter: blur(10px);
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(7,47,42,.92), rgba(6,42,38,.92));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 18px 45px rgba(0,0,0,.35);
+      width: 100%; 
+      box-sizing: border-box;
+    }
+
+    .section{
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(8,58,51,.55), rgba(7,47,42,.25));
+    }
+
+    .label{
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 13px;
+      margin-bottom: 6px;
+      display:block;
+    }
+
+    .inp, .ta{
+      width:100%;
+      background: rgba(4,28,26,.55);
+      border: 1px solid rgba(143,179,173,.28);
+      color: var(--txt);
+      border-radius: 12px;
+      padding: 12px 12px;
+      outline:none;
+      transition: .15s;
+      box-sizing: border-box;
+    }
+    .inp:focus, .ta:focus{
+      border-color: rgba(185,167,121,.65);
+      box-shadow: 0 0 0 3px rgba(185,167,121,.14);
+    }
+    .inp[readonly] {
+      background: rgba(4,28,26,.3);
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+    .ta{ min-height: 96px; resize: vertical; }
+
+    .btn{
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 800;
+      transition: .15s;
+      display:flex; align-items:center; justify-content:center; gap:10px;
+      user-select:none;
+      cursor: pointer;
+      width: 100%;
+    }
+    .btn-gold{
+      background: linear-gradient(180deg, var(--gold), var(--gold2));
+      color: #06201d;
+      box-shadow: 0 10px 24px rgba(185,167,121,.18);
+    }
+    .btn-gold:hover{ filter: brightness(1.03); transform: translateY(-1px); }
+
+    .btn-dark{
+      background: rgba(4,28,26,.55);
+      color: var(--gold);
+      border: 1px solid rgba(185,167,121,.45);
+    }
+    .btn-dark:hover{ background: rgba(0,0,0,.25); }
+
+    .btn-soft{
+      background: rgba(8,58,51,.40);
+      border: 1px solid rgba(143,179,173,.28);
+      color: var(--txt);
+    }
+    .btn-soft:hover{ background: rgba(8,58,51,.55); }
+
+    .divider{
+      height:1px;
+      background: linear-gradient(90deg, transparent, rgba(185,167,121,.30), transparent);
+    }
+
+    .select-wrap{ position:relative; width: 100%; }
+    .select-btn{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding-left: 52px;
+      cursor:pointer;
+    }
+    .select-btn .left-icons{
+      position:absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display:flex;
+      align-items:center;
+      gap:10px;
+      pointer-events:none;
+      opacity:.98;
+    }
+    .select-btn .chev{
+      width: 10px;
+      height: 10px;
+      border-left: 2px solid rgba(185,167,121,.95);
+      border-bottom: 2px solid rgba(185,167,121,.95);
+      transform: rotate(-45deg);
+      transition: .15s;
+    }
+    .select-wrap.open .select-btn{
+      border-color: rgba(185,167,121,.70);
+      box-shadow: 0 0 0 3px rgba(185,167,121,.14);
+      background: rgba(4,28,26,.62);
+    }
+    .select-wrap.open .select-btn .chev{ transform: rotate(135deg); }
+
+    .select-menu{
+      position:absolute;
+      z-index: 50;
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid rgba(185,167,121,.22);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      backdrop-filter: blur(12px);
+      box-shadow: 0 18px 55px rgba(0,0,0,.45);
+      display: none;
+      box-sizing: border-box;
+      left: 0;
+      right: 0;
+    }
+    .select-wrap.open .select-menu { display: block; animation: pop .12s ease-out; }
+    
+    @keyframes pop{
+      from{ opacity:0; transform: translateY(-4px) scale(.99); }
+      to{ opacity:1; transform: translateY(0) scale(1); }
+    }
+
+    .select-search{
+      border-radius: 0;
+      border: 0;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+      background: rgba(4,28,26,.45);
+      padding: 12px 14px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    .select-search:focus{
+      box-shadow:none;
+      border-bottom: 1px solid rgba(185,167,121,.45);
+    }
+    .select-list{ max-height: 260px; overflow:auto; padding: 8px; }
+    .select-item{
+      width:100%; text-align:right; padding: 10px 12px; border-radius: 12px;
+      border: 1px solid transparent; background: rgba(4,28,26,.25); color: var(--txt);
+      font-weight: 800; display:flex; align-items:center; justify-content:space-between;
+      gap: 12px; transition: .12s; cursor:pointer; user-select:none;
+      box-sizing: border-box;
+    }
+    .select-item:hover{ background: rgba(185,167,121,.12); border-color: rgba(185,167,121,.28); }
+    .select-item .tick{ opacity:0; color: rgba(185,167,121,.95); font-weight: 900; }
+    .select-item.selected{
+      background: linear-gradient(180deg, rgba(185,167,121,.18), rgba(185,167,121,.08));
+      border-color: rgba(185,167,121,.35);
+    }
+    .select-item.selected .tick{ opacity:1; }
+    .select-empty{ padding: 12px; color: var(--muted); font-size: 12px; text-align:center; }
+    .hidden{ display:none !important; }
+
+    @media print{
+      body{ background: #062a26 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .no-print{ display:none !important; }
+      .card{ box-shadow:none !important; }
+    }
+
+    #pdfRoot{
+      position: absolute; top: -9999px; left: -9999px; width: 1100px;
+      direction: rtl; font-family: 'Tajawal', Arial, sans-serif;
+      color: #000000; z-index: -9999; opacity: 0; pointer-events: none;
+      overflow: hidden;
+    }
+    .pdfPage{ background: #ffffff; padding: 10px; }
+    .pdfHeader{
+      display:flex; align-items:center; justify-content:space-between; gap: 16px;
+      border-radius: 14px; padding: 18px 20px; background: #0b2f2a; color:#fff;
+      -webkit-print-color-adjust: exact; print-color-adjust: exact; page-break-inside: avoid;
+    }
+    .pdfHeader h1{ margin:0; font-size: 24px; font-weight: 900; line-height: 1.3; }
+    .pdfHeader .sub{ margin-top: 6px; font-size: 14px; opacity: .9; }
+    .pdfGrid{ margin-top: 20px; display: flex; flex-direction: column; gap: 24px; }
+    .pdfCard{
+      border: 2px solid #cbd5e1; border-radius: 14px; overflow:hidden;
+      page-break-inside: avoid; background: #ffffff;
+    }
+    .pdfCardTitle{
+      background: #f1f5f9; color:#0f172a; padding: 14px 18px;
+      font-weight: 900; font-size: 18px; border-bottom: 2px solid #cbd5e1;
+    }
+    .pdfTable{ width:100%; border-collapse: collapse; font-size: 15px; }
+    .pdfTable td{ border: 1px solid #cbd5e1; padding: 12px 14px; vertical-align: middle; }
+    .k{ background: #f8fafc; color:#334155; font-weight: 800; white-space: nowrap; font-size: 14px; width: 25%; }
+    .v{ color:#000000; font-weight: 900; font-size: 16px; width: 25%; }
+    .pdfNotes{
+      white-space: pre-wrap; font-size: 15px; font-weight: 800; color: #000000;
+      line-height: 1.6; border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px;
+      background: #f8fafc; margin-top: 8px;
+    }
+    .pdfAutoFix{ direction: auto !important; unicode-bidi: isolate !important; white-space: pre !important; display: inline-block !important; }
+  </style>
+</head>
+
+<body>
+  <div class="container-fluid">
+    <div class="card overflow-hidden">
+      <div class="p-4 sm:p-6 glass no-print">
+        <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-center gap-3">
+            <img src="logo.png" onerror="this.style.display='none'" class="w-12 h-12 object-contain">
+            <div>
+              <div class="text-[11px] text-[color:var(--gold)] font-extrabold tracking-wide">الجمهورية العربية السورية</div>
+              <div class="text-base sm:text-lg font-extrabold">ترانزيت_تقرير خدمة الطائرات</div>
+            </div>
+          </div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <button id="exportPdfBtn" class="btn btn-gold" onclick="exportPdfPro()">تصدير ومشاركة PDF</button>
+            <button class="btn btn-dark" onclick="resetForm()">إفراغ الحقول</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-3 sm:p-6">
+        <div class="grid grid-cols-1 gap-4">
+          
+          <!-- القسم الأول: بيانات الرحلة -->
+          <div class="section p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <div class="text-[color:var(--gold)] font-extrabold">بيانات الرحلة</div>
+              <span class="mini">جميع الحقول إجبارية</span>
+            </div>
+            <div class="divider mb-4"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              
+              <div>
+                <label class="label">تاريخ الرحلة</label>
+                <input id="flight_date" class="inp required-field" type="date" onchange="updateDay()">
+              </div>
+              <div>
+                <label class="label">اليوم</label>
+                <input id="flight_day" class="inp" type="text" readonly placeholder="يتم التحديد تلقائياً">
+              </div>
+
+              <div>
+                <label class="label">رقم الرحلة</label>
+                <input id="flight_number" class="inp required-field" type="text" placeholder="رقم الرحلة">
+              </div>
+
+              <div>
+                <label class="label">نوع الطائرة</label>
+                <input id="aircraft_type" type="hidden" value="" class="required-field">
+                <div id="aircraftSelect" class="select-wrap">
+                  <button id="aircraft_btn" type="button" class="inp select-btn" aria-haspopup="listbox" aria-expanded="false">
+                    <span id="aircraft_btn_text">اختر نوع الطائرة...</span>
+                    <span class="left-icons"><span class="chev"></span></span>
+                  </button>
+                  <div id="aircraft_menu" class="select-menu" role="listbox">
+                    <input id="aircraft_search" class="inp select-search" type="text" placeholder="بحث سريع...">
+                    <div id="aircraft_list" class="select-list"></div>
+                    <div id="aircraft_empty" class="select-empty hidden">لا يوجد نتائج</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="label">قدوم/مغادرة</label>
+                <input id="flight_direction" type="hidden" value="" class="required-field">
+                <div id="directionSelect" class="select-wrap">
+                  <button id="direction_btn" type="button" class="inp select-btn" aria-haspopup="listbox" aria-expanded="false">
+                    <span id="direction_btn_text">اختر...</span>
+                    <span class="left-icons"><span class="chev"></span></span>
+                  </button>
+                  <div id="direction_menu" class="select-menu" role="listbox">
+                    <div id="direction_list" class="select-list"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div>
+                <label class="label">وجهة الرحلة (دولة القدوم أو المغادرة)</label>
+                <input id="destination" class="inp required-field" type="text" placeholder="الوجهة">
+              </div>
+
+              <div>
+                <label class="label">توقيت بدء الرحلة</label>
+                <input id="start_time" class="inp required-field" type="time">
+              </div>
+              
+              <div>
+                <label class="label">توقيت انتهاء الرحلة</label>
+                <input id="end_time" class="inp required-field" type="time">
+              </div>
+
+              <div>
+                <label class="label">عدد الركاب</label>
+                <input id="pax_count" class="inp required-field" type="number" min="0" placeholder="0">
+              </div>
+              
+              <div>
+                <label class="label">عدد حالات إلغاء السفر</label>
+                <input id="cancellations_count" class="inp required-field" type="number" min="0" placeholder="0">
+              </div>
+
+              <!-- قسم المفقودات مع الكاميرا -->
+              <div class="col-span-1 sm:col-span-2">
+                <label class="label">المفقودات (صورة الغرض أو لا يوجد)</label>
+                <div class="flex flex-col sm:flex-row gap-4">
+                  <label class="btn btn-dark flex-1 text-center cursor-pointer m-0">
+                    <span id="photo_btn_text">📸 التقاط صورة</span>
+                    <!-- كود تشغيل الكاميرا من الجوال مباشرة -->
+                    <input type="file" accept="image/*" capture="environment" id="lost_item_photo" class="hidden" onchange="handlePhotoUpload(event)">
+                  </label>
+                  <label class="flex items-center gap-2 text-[color:var(--txt)] text-sm cursor-pointer p-2 bg-[rgba(4,28,26,.55)] border border-[rgba(143,179,173,.28)] rounded-xl flex-1 justify-center">
+                    <input type="checkbox" id="no_lost_items" class="w-5 h-5 accent-[color:var(--gold)]" onchange="handleNoItems(event)">
+                    لا يوجد مفقودات
+                  </label>
+                </div>
+                
+                <div id="photo_preview_container" class="hidden mt-3 text-center">
+                  <img id="photo_preview" class="w-32 h-32 object-cover border-2 border-[color:var(--gold)] rounded-xl mx-auto" src="" alt="preview">
+                  <button type="button" class="mt-2 btn btn-soft !py-1 !px-3 text-xs mx-auto" onclick="clearPhoto()">إزالة الصورة</button>
+                </div>
+              </div>
+              <!-- نهاية قسم المفقودات -->
+
+            </div>
+          </div>
+
+          <!-- القسم الثاني: الطواقم والتفتيش -->
+          <div class="section p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <div class="text-[color:var(--gold)] font-extrabold">الطواقم والتفتيش</div>
+              <span class="mini">يرجى إدخال أسماء الموظفين</span>
+            </div>
+            <div class="divider mb-4"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div><label class="label">اسم ضابط المطار</label><input id="airport_officer" class="inp required-field" type="text"></div>
+              <div><label class="label">اسم المشرف</label><input id="supervisor" class="inp required-field" type="text"></div>
+              <div><label class="label">المضيفة الأرضية</label><input id="ground_hostess" class="inp required-field" type="text"></div>
+              <div><label class="label">مفتش الحقائب</label><input id="baggage_inspector" class="inp required-field" type="text"></div>
+              <div><label class="label">مفتش جهاز الـ XR</label><input id="xr_inspector" class="inp required-field" type="text"></div>
+              <div><label class="label">مفتش جسدي رجال</label><input id="male_body_inspector" class="inp required-field" type="text"></div>
+              <div><label class="label">مفتش جسدي نساء</label><input id="female_body_inspector" class="inp required-field" type="text"></div>
+              <div><label class="label">عنصر أمن رجال</label><input id="male_security" class="inp required-field" type="text"></div>
+              <div><label class="label">عنصر أمن نساء</label><input id="female_security" class="inp required-field" type="text"></div>
+              <div><label class="label">موظف مسحة ETD</label><input id="etd_swab_employee" class="inp required-field" type="text"></div>
+              
+              <div class="col-span-1 sm:col-span-2 mt-2">
+                <label class="label">أسماء العناصر المتواجدة على الرحلة</label>
+                <textarea id="crew_names" class="ta required-field" placeholder="اذكر الأسماء..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- القسم الثالث: الملاحظات -->
+          <div class="section p-4 sm:p-5">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <div class="text-[color:var(--gold)] font-extrabold">الملاحظات</div>
+            </div>
+            <div class="divider mb-4"></div>
+            <textarea id="notes" class="ta" placeholder="لا يوجد ملاحظات إضافية."></textarea>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="pdfRoot" aria-hidden="true">
+    <div id="pdfPage" class="pdfPage"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
+
+  <script>
+    // ===== وظائف الكاميرا والمفقودات =====
+    let lostItemPhotoBase64 = "";
+
+    function handlePhotoUpload(e) {
+      const file = e.target.files[0];
+      if(!file) return;
+      
+      // إذا اختار صورة، نلغي تفعيل "لا يوجد مفقودات"
+      document.getElementById('no_lost_items').checked = false;
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        lostItemPhotoBase64 = event.target.result;
+        document.getElementById('photo_preview').src = lostItemPhotoBase64;
+        document.getElementById('photo_preview_container').classList.remove('hidden');
+        document.getElementById('photo_btn_text').innerText = "📸 تغيير الصورة";
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function handleNoItems(e) {
+      if(e.target.checked) {
+        clearPhoto();
+      }
+    }
+
+    function clearPhoto() {
+      lostItemPhotoBase64 = "";
+      document.getElementById('lost_item_photo').value = "";
+      document.getElementById('photo_preview_container').classList.add('hidden');
+      document.getElementById('photo_btn_text').innerText = "📸 التقاط صورة";
+    }
+    // ===================================
+
+    function escapeHtml(s) {
+      return (s ?? '').toString().replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#039;"})[m]);
+    }
+
+    const DAYS_AR = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+    function updateDay() {
+      const dateVal = document.getElementById('flight_date').value;
+      if(dateVal) {
+        const d = new Date(dateVal);
+        if(!isNaN(d.getTime())) {
+          document.getElementById('flight_day').value = DAYS_AR[d.getDay()];
+        }
+      } else {
+        document.getElementById('flight_day').value = '';
+      }
+    }
+
+    const AIRCRAFT_OPTIONS = [
+      "السورية", "فلاي شام", "الأردنية", "الجزيرة", "العربية",
+      "القطرية", "التركية", "Sun Express","التركية أجيت صبيحة", "التركية أجيت أنقرة", "فلاي دبي",
+      "فلاي ناس", "فلاي أديل", "بوخاريست", "إغاثي", "حربي", "خاصة", "الاتحاد", "الكويتية", "Lave", "Sundair", "سلام"
+    ];
+
+    function setAircraftType(val){
+      const hidden = document.getElementById('aircraft_type');
+      const btnText = document.getElementById('aircraft_btn_text');
+      hidden.value = (val || "").trim();
+      btnText.textContent = hidden.value ? hidden.value : "اختر نوع الطائرة...";
+      renderAircraftList(document.getElementById('aircraft_search').value || "");
+    }
+
+    function renderAircraftList(filterText){
+      const list = document.getElementById('aircraft_list');
+      const empty = document.getElementById('aircraft_empty');
+      const selected = (document.getElementById('aircraft_type').value || "").trim();
+      const f = (filterText || "").trim().toLowerCase();
+      const items = AIRCRAFT_OPTIONS.filter(x => x.toLowerCase().includes(f));
+
+      list.innerHTML = "";
+      if(items.length === 0){ empty.classList.remove('hidden'); return; }
+      empty.classList.add('hidden');
+
+      items.forEach(name => {
+        const b = document.createElement('button');
+        b.type = "button";
+        b.className = "select-item" + (name === selected ? " selected" : "");
+        b.innerHTML = `<span>${escapeHtml(name)}</span><span class="tick">✓</span>`;
+        b.onclick = () => { setAircraftType(name); closeAircraftMenu(); };
+        list.appendChild(b);
+      });
+    }
+
+    function openAircraftMenu(){
+      document.getElementById('aircraftSelect').classList.add('open');
+      document.getElementById('aircraft_search').focus();
+      renderAircraftList(document.getElementById('aircraft_search').value || "");
+    }
+    function closeAircraftMenu(){ document.getElementById('aircraftSelect').classList.remove('open'); }
+    function toggleAircraftMenu(){
+      const wrap = document.getElementById('aircraftSelect');
+      if(wrap.classList.contains('open')) closeAircraftMenu(); else openAircraftMenu();
+    }
+
+    function initAircraftSelect(){
+      const btn = document.getElementById('aircraft_btn');
+      const search = document.getElementById('aircraft_search');
+      btn.addEventListener('click', toggleAircraftMenu);
+      search.addEventListener('input', (e) => renderAircraftList(e.target.value));
+      document.addEventListener('click', (e) => {
+        if(!document.getElementById('aircraftSelect').contains(e.target)) closeAircraftMenu();
+      });
+      setAircraftType("");
+    }
+
+    const DIRECTION_OPTIONS = ["قدوم", "مغادرة"];
+    
+    function setDirectionType(val){
+      const hidden = document.getElementById('flight_direction');
+      const btnText = document.getElementById('direction_btn_text');
+      hidden.value = (val || "").trim();
+      btnText.textContent = hidden.value ? hidden.value : "اختر...";
+      renderDirectionList();
+    }
+
+    function renderDirectionList(){
+      const list = document.getElementById('direction_list');
+      const selected = (document.getElementById('flight_direction').value || "").trim();
+      list.innerHTML = "";
+      DIRECTION_OPTIONS.forEach(name => {
+        const b = document.createElement('button');
+        b.type = "button";
+        b.className = "select-item" + (name === selected ? " selected" : "");
+        b.innerHTML = `<span>${escapeHtml(name)}</span><span class="tick">✓</span>`;
+        b.onclick = () => { setDirectionType(name); closeDirectionMenu(); };
+        list.appendChild(b);
+      });
+    }
+
+    function openDirectionMenu(){
+      document.getElementById('directionSelect').classList.add('open');
+      renderDirectionList();
+    }
+    function closeDirectionMenu(){ document.getElementById('directionSelect').classList.remove('open'); }
+    function toggleDirectionMenu(){
+      const wrap = document.getElementById('directionSelect');
+      if(wrap.classList.contains('open')) closeDirectionMenu(); else openDirectionMenu();
+    }
+
+    function initDirectionSelect(){
+      const btn = document.getElementById('direction_btn');
+      btn.addEventListener('click', toggleDirectionMenu);
+      document.addEventListener('click', (e) => {
+        if(!document.getElementById('directionSelect').contains(e.target)) closeDirectionMenu();
+      });
+      setDirectionType("");
+    }
+
+    const LABELS = {
+      flight_number: "رقم الرحلة",
+      flight_date: "تاريخ الرحلة", aircraft_type: "نوع الطائرة", flight_direction: "قدوم/مغادرة",
+      destination: "وجهة الرحلة", start_time: "توقيت بدء الرحلة", end_time: "توقيت انتهاء الرحلة", 
+      pax_count: "عدد الركاب", cancellations_count: "عدد حالات إلغاء السفر", airport_officer: "اسم ضابط المطار", 
+      supervisor: "اسم المشرف", ground_hostess: "المضيفة الأرضية", baggage_inspector: "مفتش الحقائب", 
+      xr_inspector: "مفتش جهاز الـ XR", male_body_inspector: "مفتش جسدي رجال", 
+      female_body_inspector: "مفتش جسدي نساء", male_security: "عنصر أمن رجال", female_security: "عنصر أمن نساء",
+      etd_swab_employee: "موظف مسحة ETD", crew_names: "أسماء العناصر المتواجدة على الرحلة"
+    };
+
+    function validateForm() {
+      const requiredFields = Object.keys(LABELS);
+      for(let id of requiredFields) {
+        const el = document.getElementById(id);
+        if(!el.value.trim()) {
+          alert(`الرجاء تعبئة جميع الحقول. الحقل المفقود: ${LABELS[id]}`);
+          if (el.type !== 'hidden') el.focus();
+          return false;
+        }
+      }
+
+      // التحقق من قسم المفقودات
+      const noItems = document.getElementById('no_lost_items').checked;
+      if (!noItems && !lostItemPhotoBase64) {
+         alert("الرجاء التقاط صورة للمفقودات أو تحديد خيار 'لا يوجد مفقودات'.");
+         return false;
+      }
+
+      return true;
+    }
+
+    function gatherData() {
+      let data = {};
+      Object.keys(LABELS).forEach(id => { data[id] = document.getElementById(id).value.trim(); });
+      data.flight_day = document.getElementById('flight_day').value.trim();
+      
+      // جلب بيانات المفقودات
+      data.lost_items_photo = lostItemPhotoBase64;
+      data.no_lost_items = document.getElementById('no_lost_items').checked;
+
+      let notes = document.getElementById('notes').value.trim();
+      if(!notes) notes = "لا يوجد ملاحظات.";
+      data.notes = notes;
+      return data;
+    }
+
+    function buildPdfTemplateHtml(d) {
+      
+      // تجهيز كود المفقودات HTML
+      let lostAndFoundHtml = "";
+      if(d.no_lost_items) {
+         lostAndFoundHtml = '<span class="pdfAutoFix" style="color: #64748b;">لا يوجد مفقودات</span>';
+      } else if(d.lost_items_photo) {
+         lostAndFoundHtml = `<img src="${d.lost_items_photo}" style="max-height: 180px; border-radius: 8px; border: 2px solid #cbd5e1;">`;
+      }
+
+      return `
+        <div class="pdfPage">
+          <div class="pdfHeader">
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div>
+                <div style="font-weight:900; font-size:14px; opacity:.92; margin-bottom:4px;">الجمهورية العربية السورية</div>
+                <h1>ترانزيت_تقرير خدمة الطائرات</h1>
+              </div>
+            </div>
+          </div>
+          <div class="pdfGrid">
+            
+            <div class="pdfCard">
+              <div class="pdfCardTitle">بيانات الرحلة</div>
+              <table class="pdfTable">
+                <tr>
+                  <td class="k">تاريخ الرحلة / اليوم</td><td class="v"><span class="pdfAutoFix">${escapeHtml(d.flight_date)} / ${escapeHtml(d.flight_day)}</span></td>
+                  <td class="k">رقم الرحلة</td><td class="v"><span class="pdfAutoFix">${escapeHtml(d.flight_number)}</span></td>
+                </tr>
+                <tr>
+                  <td class="k">نوع الطائرة</td><td class="v"><span class="pdfAutoFix">${escapeHtml(d.aircraft_type)}</span></td>
+                  <td class="k">قدوم/مغادرة</td><td class="v"><span class="pdfAutoFix">${escapeHtml(d.flight_direction)}</span></td>
+                </tr>
+                <tr>
+                  <td class="k">وجهة الرحلة</td><td class="v" colspan="3"><span class="pdfAutoFix">${escapeHtml(d.destination)}</span></td>
+                </tr>
+                <tr>
+                  <td class="k">توقيت البدء</td><td class="v" style="direction:ltr; text-align:right;"><span class="pdfAutoFix">${escapeHtml(d.start_time)}</span></td>
+                  <td class="k">توقيت الانتهاء</td><td class="v" style="direction:ltr; text-align:right;"><span class="pdfAutoFix">${escapeHtml(d.end_time)}</span></td>
+                </tr>
+                <tr>
+                  <td class="k">عدد الركاب</td><td class="v"><span class="pdfAutoFix">${escapeHtml(d.pax_count)}</span></td>
+                  <td class="k">عدد حالات إلغاء السفر</td><td class="v"><span class="pdfAutoFix">${escapeHtml(d.cancellations_count)}</span></td>
+                </tr>
+                <tr>
+                  <td class="k">المفقودات</td><td class="v" colspan="3" style="text-align:center; padding: 10px;">${lostAndFoundHtml}</td>
+                </tr>
+              </table>
+            </div>
+
+            <div class="pdfCard">
+              <div class="pdfCardTitle">الطواقم والتفتيش</div>
+              <table class="pdfTable">
+                <tr><td class="k">اسم ضابط المطار</td><td class="v">${escapeHtml(d.airport_officer)}</td><td class="k">اسم المشرف</td><td class="v">${escapeHtml(d.supervisor)}</td></tr>
+                <tr><td class="k">المضيفة الأرضية</td><td class="v">${escapeHtml(d.ground_hostess)}</td><td class="k">مفتش الحقائب</td><td class="v">${escapeHtml(d.baggage_inspector)}</td></tr>
+                <tr><td class="k">مفتش جهاز الـ XR</td><td class="v">${escapeHtml(d.xr_inspector)}</td><td class="k">مفتش جسدي رجال</td><td class="v">${escapeHtml(d.male_body_inspector)}</td></tr>
+                <tr><td class="k">مفتش جسدي نساء</td><td class="v">${escapeHtml(d.female_body_inspector)}</td><td class="k">عنصر أمن رجال</td><td class="v">${escapeHtml(d.male_security)}</td></tr>
+                <tr><td class="k">عنصر أمن نساء</td><td class="v">${escapeHtml(d.female_security)}</td><td class="k">موظف مسحة ETD</td><td class="v">${escapeHtml(d.etd_swab_employee)}</td></tr>
+                <tr><td class="k" style="vertical-align:top;">أسماء العناصر</td><td class="v" colspan="3"><span class="pdfAutoFix">${escapeHtml(d.crew_names)}</span></td></tr>
+              </table>
+            </div>
+
+            <div class="pdfCard">
+              <div class="pdfCardTitle">الملاحظات</div>
+              <div style="padding:14px 18px;">
+                <div class="pdfNotes"><span class="pdfAutoFix">${escapeHtml(d.notes)}</span></div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+    }
+
+    async function exportPdfPro(){
+      if(!validateForm()) return; 
+      
+      const btn = document.getElementById('exportPdfBtn');
+      const old = btn.innerText;
+      btn.innerText = "جاري التجهيز...";
+      btn.disabled = true;
+
+      try{
+        const d = gatherData();
+        const pdfPage = document.getElementById('pdfPage');
+        pdfPage.innerHTML = buildPdfTemplateHtml(d);
+
+        let safeAircraft = d.aircraft_type.replace(/[\/:*?"<>|\s]/g, '-');
+        let fileName = `${safeAircraft}_${d.flight_date}.pdf`;
+
+        window.scrollTo(0, 0);
+
+        const opt = {
+          margin: [10, 10, 10, 10], 
+          filename: fileName,
+          image: { type: 'jpeg', quality: 1.0 }, 
+          html2canvas: { scale: 2, useCORS: true, windowWidth: 1100, scrollY: 0, scrollX: 0, x: 0, y: 0 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' },
+          pagebreak: { mode: ['css', 'legacy'] } 
+        };
+
+        const worker = html2pdf().set(opt).from(pdfPage).toPdf();
+        const rawBlob = await worker.outputPdf('blob');
+        
+        const pdfBlob = new Blob([rawBlob], { type: 'application/pdf' });
+        const fileForShare = new File([pdfBlob], fileName, {
+          type: 'application/pdf',
+          lastModified: Date.now()
+        });
+
+        if (navigator.canShare && navigator.canShare({ files: [fileForShare] })) {
+          try {
+            await navigator.share({
+              title: 'ترانزيت_تقرير خدمة الطائرات',
+              text: 'ترانزيت',
+              files: [fileForShare]
+            });
+          } catch (error) {
+            if (error.name !== 'AbortError') {
+              saveAs(pdfBlob, fileName);
+            }
+          }
+        } else {
+          saveAs(pdfBlob, fileName);
+        }
+
+      }catch(e){
+        alert("حدث خطأ أثناء تصدير PDF: " + (e?.message || e));
+      }finally{
+        btn.innerText = old;
+        btn.disabled = false;
+        document.getElementById('pdfPage').innerHTML = ""; 
+      }
+    }
+
+    function resetForm(){
+      document.querySelectorAll('.inp, .ta').forEach(el => {
+        if(!el.readOnly && el.id !== 'aircraft_search') el.value = '';
+      });
+      setAircraftType('');
+      setDirectionType('');
+      updateDay();
+      
+      // تفريغ المفقودات
+      document.getElementById('no_lost_items').checked = false;
+      clearPhoto();
+    }
+
+    window.onload = function(){
+      initAircraftSelect();
+      initDirectionSelect();
+    };
+  </script>
+</body>
+</html>
